@@ -8,6 +8,8 @@ namespace ConsoleApp1
     {
         static async Task Main(string[] args)
         {
+            XmlDocument xdoc = new XmlDocument();
+            xdoc.Load(@"../../../OrdersFile/NewOrders.xml");
             AcknowledgmentGenerator.acknowledgmentGenerate();
             ShipmentFileGenerator.shipmentFileGenerate();
             InvoiceFileGenerator.invoiceFileGenerate();
