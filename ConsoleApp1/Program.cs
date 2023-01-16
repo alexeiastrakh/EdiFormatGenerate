@@ -6,7 +6,7 @@ namespace ConsoleApp1
 {
     class XMLReadandParse
     {
-        static async Task Main(string[] args)
+       public static Main(string[] args)
         {
             XmlDocument xdoc = new XmlDocument();
             xdoc.Load(@"../../../OrdersFile/NewOrders.xml");
