@@ -8,9 +8,7 @@ namespace ConsoleApp1
     {
         public static void updateInventories()
         {
-         
-            XmlDocument xdoc = new XmlDocument();
-            xdoc.Load(@"../../../OrdersFile/NewOrders.xml");
+
             XmlNodeList listQtyOdered = xdoc.SelectNodes("//qtyOrdered");
             XmlNodeList listDescription = xdoc.SelectNodes("//description");
             XmlNodeList listUnitCost = xdoc.SelectNodes("//unitCost");
