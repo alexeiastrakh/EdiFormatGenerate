@@ -9,8 +9,7 @@ namespace ConsoleApp1
         public static void invoiceFileGenerate()
         {
   
-            XmlDocument xdoc = new XmlDocument();
-            xdoc.Load(@"../../../OrdersFile/NewOrders.xml");
+            
             XmlNodeList listLineReqDelvDate = xdoc.SelectNodes("//lineReqDelvDate");
             XmlNodeList listOfferCurrency = xdoc.SelectNodes("//offerCurrency");
             XmlNodeList listName1 = xdoc.SelectNodes("//name1");
