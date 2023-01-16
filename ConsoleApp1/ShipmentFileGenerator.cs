@@ -8,9 +8,7 @@ namespace ConsoleApp1
     {
         public static void shipmentFileGenerate()
         {
- 
-            XmlDocument xdoc = new XmlDocument();
-            xdoc.Load(@"../../../OrdersFile/NewOrders.xml");
+
             XmlNodeList listLineItemId = xdoc.SelectNodes("//lineItemId");
             XmlNodeList listOrderDate = xdoc.SelectNodes("//orderDate");
             XmlNodeList listSendersIdForReceiver = xdoc.SelectNodes("//sendersIdForReceiver");
