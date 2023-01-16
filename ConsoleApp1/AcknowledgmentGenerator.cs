@@ -9,8 +9,6 @@ namespace ConsoleApp1
         public static void acknowledgmentGenerate()
         {
  
-            XmlDocument xdoc = new XmlDocument();
-            XmlDocument xmlDoc = new XmlDocument();
             xdoc.Load(@"../../../OrdersFile/NewOrders.xml");
             XmlNodeList listOrderId = xdoc.SelectNodes("//orderId");
             XmlNodeList listCustOrderNumber = xdoc.SelectNodes("//custOrderNumber");
@@ -55,9 +53,7 @@ namespace ConsoleApp1
 
              root.Save(@"../../../EdiGeneratedFiles/Acknowledgment.ODRSP");
 
-        }
-
-        
+        }     
 
     }
 
