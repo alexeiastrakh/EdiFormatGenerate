@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace ConsoleApp1
+namespace EdiFileGenenator
 {
     class ShipmentFileGenerator
     {
@@ -22,7 +22,7 @@ namespace ConsoleApp1
             List<String> ShipmentElements = new List<String>();
             List<String> StringShipmentTegs = new List<String>();
             int counter = 0;
-           
+
 
 
             while (counter != listOrderId.Count)
@@ -48,7 +48,7 @@ namespace ConsoleApp1
 
 
                 counter++;
-               
+
             }
             int counterShipmentString = 0;
             List<String> data = ShipmentElements;
@@ -56,7 +56,7 @@ namespace ConsoleApp1
                                         from item in data
                                         select new XElement(StringShipmentTegs[counterShipmentString++], item));
 
-            root.Save(@"../../../EdiGeneratedFiles/Shipment.DESADV");
+            root.Save(@"../../../Shipment.DESADV");
 
 
         }
