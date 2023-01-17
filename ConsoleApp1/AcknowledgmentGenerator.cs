@@ -1,15 +1,16 @@
-﻿using System;
+using System;
 using System.Xml;
 using System.Xml.Linq;
+using EdiFileGenenator;
 
-namespace ConsoleApp1
+namespace EdiFileGenenator
 {
-  class AcknowledgmentGenerator
+    class AcknowledgmentGenerator
     {
-        public static void acknowledgmentGenerate()
+        public static void acknowledgmentGenerate(XmlDocument xdoc)
         {
- 
-            xdoc.Load(@"../../../OrdersFile/NewOrders.xml");
+            
+            
             XmlNodeList listOrderId = xdoc.SelectNodes("//orderId");
             XmlNodeList listCustOrderNumber = xdoc.SelectNodes("//custOrderNumber");
             XmlNodeList listSendersIdForReceiver = xdoc.SelectNodes("//sendersIdForReceiver");
@@ -49,11 +50,11 @@ namespace ConsoleApp1
             List<String> data = AcknowledgmentElements;
             XElement root = new XElement("ORDRSP",
                                         from item in data
-                                        select new XElement(StringAcknowledgmentTegs[counterAcknowledgmentString++], item)) ; 
+                                        select new XElement(StringAcknowledgmentTegs[counterAcknowledgmentString++], item));
 
-             root.Save(@"../../../EdiGeneratedFiles/Acknowledgment.ODRSP");
+            root.Save(@"../../../Acknowledgment.ODRSP");
 
-        }     
+        }
 
     }
 
