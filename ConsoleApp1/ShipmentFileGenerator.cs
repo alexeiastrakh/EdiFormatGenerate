@@ -6,7 +6,7 @@ namespace ConsoleApp1
 {
     class ShipmentFileGenerator
     {
-        public static void shipmentFileGenerate()
+        public static void shipmentFileGenerate(XmlDocument xdoc)
         {
 
             XmlNodeList listLineItemId = xdoc.SelectNodes("//lineItemId");
