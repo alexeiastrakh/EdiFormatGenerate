@@ -61,7 +61,7 @@ namespace ConsoleApp1
                                         from item in data
                                         select new XElement(StringInvoiceTegs[counterInvoiceString++], item));
 
-            root.Save(@"../../../EdiGeneratedFiles/Invoice.INVOIC");
+            root.Save(@"../../../Invoice.INVOIC");
 
         }
 
