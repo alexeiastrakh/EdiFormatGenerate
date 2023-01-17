@@ -37,7 +37,7 @@ namespace ConsoleApp1
                                         from item in data
                                         select new XElement(StringUpdateInventoriesTegs[counterUpdateInventoriesString++], item));
 
-            root.Save(@"../../../EdiGeneratedFiles/UpdateInventories.INVRPT");
+            root.Save(@"../../../UpdateInventories.INVRPT");
 
 
 
