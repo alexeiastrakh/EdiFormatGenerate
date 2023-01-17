@@ -6,7 +6,7 @@ namespace ConsoleApp1
 {
     class InvoiceFileGenerator
     {
-        public static void invoiceFileGenerate()
+        public static void invoiceFileGenerate(XmlDocument xdoc)
         {
   
             
