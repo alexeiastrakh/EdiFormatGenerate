@@ -1,22 +1,28 @@
-﻿using System;
+using EdiFileGenerator;
+using System;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace ConsoleApp1
+namespace EdiFileGenenator
 {
     class XMLReadandParse
     {
-       public static Main(string[] args)
+        public static void Main(string[] args)
         {
+            //Console.WriteLine("Please enter path to order file");
+            // String pathOrderFile = Console.ReadLine();
+            //if you want to set the file yourself recomment the line 12,13 and comment 15 line
+            String pathOrderFile = @"../../../NewOrders.xml";
             XmlDocument xdoc = new XmlDocument();
-            xdoc.Load(@"../../../OrdersFile/NewOrders.xml");
-            AcknowledgmentGenerator.acknowledgmentGenerate();
-            ShipmentFileGenerator.shipmentFileGenerate();
-            InvoiceFileGenerator.invoiceFileGenerate();
-            UpdateInventories.updateInventories();
-          
+            xdoc.Load($@"{pathOrderFile}");
+            ParserEdi.ParseEdi(pathOrderFile);
+            AcknowledgmentGenerator.acknowledgmentGenerate(xdoc);
+            ShipmentFileGenerator.shipmentFileGenerate(xdoc);
+            InvoiceFileGenerator.invoiceFileGenerate(xdoc);
+            UpdateInventories.updateInventories(xdoc);
+
 
         }
 
     }
-    }
+}
