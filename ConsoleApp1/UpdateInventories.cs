@@ -6,7 +6,7 @@ namespace ConsoleApp1
 {
     class UpdateInventories
     {
-        public static void updateInventories()
+        public static void updateInventories(XmlDocument xdoc)
         {
 
             XmlNodeList listQtyOdered = xdoc.SelectNodes("//qtyOrdered");
