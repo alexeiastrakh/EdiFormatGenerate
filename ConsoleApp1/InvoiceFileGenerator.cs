@@ -1,67 +1,58 @@
-﻿using System;
+using System;
 using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 
-namespace ConsoleApp1
+namespace EdiFileGenenator
 {
-    class InvoiceFileGenerator
+   public class InvoiceFileGenerator
     {
-        public static void invoiceFileGenerate(XmlDocument xdoc)
+        [XmlAttribute(AttributeName = "transactionID")]
+        public string TransactionID { get; set; }
+        [XmlElement(ElementName = "invoiceTo")]
+        public InvoiceTo InvoiceTo { get; set; }
+        [XmlElement(ElementName = "offerCurrency")]
+        public string OfferCurrency { get; set; }
+      
+        [XmlElement(ElementName = "personPlace")]
+        public List<PersonPlace> PersonPlace { get; set; }
+        public string PostalCode { get; set; }
+        [XmlElement(ElementName = "merchandiseTypeCode")]
+        public string MerchandiseTypeCode { get; set; }
+     
+        [XmlElement(ElementName = "freightPaymentTermsCode")]
+        public string FreightPaymentTermsCode { get; set; }
+        public static void invoiceFileGenerate(OrderMessageBatch orderMessageBatch)
         {
-  
             
-            XmlNodeList listLineReqDelvDate = xdoc.SelectNodes("//lineReqDelvDate");
-            XmlNodeList listOfferCurrency = xdoc.SelectNodes("//offerCurrency");
-            XmlNodeList listName1 = xdoc.SelectNodes("//name1");
-            XmlNodeList listAddress1 = xdoc.SelectNodes("//address1");
-            XmlNodeList listCity = xdoc.SelectNodes("//city");
-            XmlNodeList listState = xdoc.SelectNodes("//state");
-            XmlNodeList listCountry = xdoc.SelectNodes("//country");
-            XmlNodeList listMerchandiseTypeCode = xdoc.SelectNodes("//merchandiseTypeCode");
-            XmlNodeList listFreightPaymentTermsCode = xdoc.SelectNodes("//freightPaymentTermsCode");
-            XmlNodeList listSalesAgent = xdoc.SelectNodes("//salesAgent");
-            XmlNodeList listOrderId = xdoc.SelectNodes("//orderId");
-            List<String> InvoiceElements = new List<String>();
-           List<String> StringInvoiceTegs = new List<String>();
-
-            int counter = 0;
-            
-
-
-            while (counter != listOrderId.Count)
+            List<HubOrder> hubOrders = orderMessageBatch.HubOrder;
+            List<InvoiceFileGenerator> invoiceFileElements = new List<InvoiceFileGenerator>();
+          
+            PoHdrData poHdrData = new PoHdrData();
+           foreach (HubOrder hubOrder in hubOrders)
             {
-                InvoiceElements.Add(listLineReqDelvDate.Item(counter).InnerText);
-                InvoiceElements.Add(listOfferCurrency.Item(counter).InnerText);
-                InvoiceElements.Add(listName1.Item(counter).InnerText);
-                InvoiceElements.Add(listAddress1.Item(counter).InnerText);
-                InvoiceElements.Add(listCity.Item(counter).InnerText);
-                InvoiceElements.Add(listState.Item(counter).InnerText);
-                InvoiceElements.Add(listCountry.Item(counter).InnerText);
-                InvoiceElements.Add(listMerchandiseTypeCode.Item(counter).InnerText);
-                InvoiceElements.Add(listFreightPaymentTermsCode.Item(counter).InnerText);
-                InvoiceElements.Add(listSalesAgent.Item(counter).InnerText);
-                StringInvoiceTegs.Add("lineReqDelvDate");
-                StringInvoiceTegs.Add("offerCurrency");
-                StringInvoiceTegs.Add("name1");
-                StringInvoiceTegs.Add("address1");
-                StringInvoiceTegs.Add("city");
-                StringInvoiceTegs.Add("state");
-                StringInvoiceTegs.Add("country");
-                StringInvoiceTegs.Add("merchandiseTypeCode");
-                StringInvoiceTegs.Add("freightPaymentTermsCode");
-                StringInvoiceTegs.Add("salesAgent");
-
-
-                counter++;
-                
+                InvoiceFileGenerator invoiceGenerator = new InvoiceFileGenerator();
+                invoiceGenerator.TransactionID = hubOrder.TransactionID;
+                invoiceGenerator.InvoiceTo = hubOrder.InvoiceTo;
+                invoiceGenerator.PersonPlace = hubOrder.PersonPlace;            
+                poHdrData = hubOrder.PoHdrData;
+                invoiceGenerator.OfferCurrency = poHdrData.OfferCurrency;
+                invoiceGenerator.MerchandiseTypeCode = poHdrData.MerchandiseTypeCode;
+                invoiceGenerator.FreightPaymentTermsCode = poHdrData.FreightPaymentTermsCode;
+                invoiceFileElements.Add(invoiceGenerator);
             }
-            int counterInvoiceString = 0;
-            List<String> data = InvoiceElements;
-            XElement root = new XElement("INVOIC",
-                                        from item in data
-                                        select new XElement(StringInvoiceTegs[counterInvoiceString++], item));
 
-            root.Save(@"../../../Invoice.INVOIC");
+            var xmlWriterSettings = new XmlWriterSettings() { Indent = true };
+            XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<InvoiceFileGenerator>));
+
+            using (XmlWriter xmlWriter = XmlWriter.Create(@"../../../Invoice.INVOIC", xmlWriterSettings))
+            {
+                xmlSerializer.Serialize(xmlWriter, invoiceFileElements);
+
+                Console.WriteLine("File has been generated");
+            }
+
+
 
         }
 
