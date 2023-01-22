@@ -1,61 +1,55 @@
 using System;
 using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 using EdiFileGenenator;
 
 namespace EdiFileGenenator
 {
-    class AcknowledgmentGenerator
+   public class AcknowledgmentGenerator
     {
-        public static void acknowledgmentGenerate(XmlDocument xdoc)
+        [XmlAttribute(AttributeName = "transactionID")]
+        public string TransactionID { get; set; }
+        [XmlElement(ElementName = "orderId")]
+        public string OrderId { get; set; }
+        [XmlElement(ElementName = "sendersIdForReceiver")]
+        public string SendersIdForReceiver { get; set; }
+        [XmlElement(ElementName = "custOrderNumber")]
+        public string CustOrderNumber { get; set; }
+        [XmlElement(ElementName = "lineItemAcknowledgment")]
+        public List<LineItem> LineItemAcknowledgments { get; set; }
+
+        public static void acknowledgmentGenerate(OrderMessageBatch orderMessageBatch)
         {
-            
-            
-            XmlNodeList listOrderId = xdoc.SelectNodes("//orderId");
-            XmlNodeList listCustOrderNumber = xdoc.SelectNodes("//custOrderNumber");
-            XmlNodeList listSendersIdForReceiver = xdoc.SelectNodes("//sendersIdForReceiver");
-            XmlNodeList listOrderDate = xdoc.SelectNodes("//orderDate");
-            XmlNodeList listQtyOrdered = xdoc.SelectNodes("//qtyOrdered");
-            XmlNodeList listDescription = xdoc.SelectNodes("//description");
-            XmlNodeList listUnitCost = xdoc.SelectNodes("//unitCost");
-            List<String> AcknowledgmentElements = new List<String>();
-            List<String> StringAcknowledgmentTegs = new List<String>();
 
-            int counter = 0;
-            int counterQtyOdered = 0;
-
-            while (counter != listOrderId.Count)
+            List<HubOrder> hubOrders = orderMessageBatch.HubOrder;
+            List<AcknowledgmentGenerator> AcknowledgmentElements = new List<AcknowledgmentGenerator>();
+          
+           
+            foreach (HubOrder hubOrder in hubOrders)
             {
-                AcknowledgmentElements.Add(listOrderId.Item(counter).InnerText);
-                AcknowledgmentElements.Add(listCustOrderNumber.Item(counter).InnerText);
-                AcknowledgmentElements.Add(listSendersIdForReceiver.Item(counter).InnerText);
-                AcknowledgmentElements.Add(listOrderDate.Item(counter).InnerText);
-                AcknowledgmentElements.Add(listQtyOrdered.Item(counter).InnerText);
-                AcknowledgmentElements.Add(listDescription.Item(counter).InnerText);
-                AcknowledgmentElements.Add(listUnitCost.Item(counter).InnerText);
-                StringAcknowledgmentTegs.Add("orderId");
-                StringAcknowledgmentTegs.Add("custOrderNumber");
-                StringAcknowledgmentTegs.Add("sendersIdForReceiver");
-                StringAcknowledgmentTegs.Add("orderDate");
-                StringAcknowledgmentTegs.Add("qtyOrdered");
-                StringAcknowledgmentTegs.Add("description");
-                StringAcknowledgmentTegs.Add("unitCost");
-
-
-
-                counter++;
+                AcknowledgmentGenerator acknowledgmentGenerator = new AcknowledgmentGenerator();
+                acknowledgmentGenerator.TransactionID = hubOrder.TransactionID;
+                acknowledgmentGenerator.OrderId = hubOrder.OrderId;
+                acknowledgmentGenerator.SendersIdForReceiver = hubOrder.SendersIdForReceiver;
+                acknowledgmentGenerator.CustOrderNumber = hubOrder.CustOrderNumber;
+                acknowledgmentGenerator.LineItemAcknowledgments = hubOrder.LineItem;
+                AcknowledgmentElements.Add(acknowledgmentGenerator);
 
             }
-            int counterAcknowledgmentString = 0;
-            List<String> data = AcknowledgmentElements;
-            XElement root = new XElement("ORDRSP",
-                                        from item in data
-                                        select new XElement(StringAcknowledgmentTegs[counterAcknowledgmentString++], item));
+            var xmlWriterSettings = new XmlWriterSettings() { Indent = true };
+            XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<AcknowledgmentGenerator>));
 
-            root.Save(@"../../../Acknowledgment.ODRSP");
+            using (XmlWriter xmlWriter = XmlWriter.Create(@"../../../Acknowledgment.ODRSP", xmlWriterSettings))
+            {
+                xmlSerializer.Serialize(xmlWriter, AcknowledgmentElements);
+
+                Console.WriteLine("File has been generated");
+            }
+
 
         }
 
     }
-
+  
 }
