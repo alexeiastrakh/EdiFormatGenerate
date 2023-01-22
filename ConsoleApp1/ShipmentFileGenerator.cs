@@ -1,67 +1,65 @@
 using System;
 using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace EdiFileGenenator
 {
-    class ShipmentFileGenerator
+   public class ShipmentFileGenerator
     {
-        public static void shipmentFileGenerate(XmlDocument xdoc)
+        [XmlAttribute(AttributeName = "transactionID")]
+        public string TransactionID { get; set; }
+        [XmlElement(ElementName = "orderDate")]
+        public string OrderDate { get; set; }
+        [XmlElement(ElementName = "sendersIdForReceiver")]
+        public string SendersIdForReceiver { get; set; }
+        [XmlElement(ElementName = "shippingCode")]
+        public string ShippingCode { get; set; }
+        [XmlElement(ElementName = "custOrderNumber")]
+        public string CustOrderNumber { get; set; }
+        [XmlElement(ElementName = "merchantSKU")]
+        public string MerchantSKU { get; set; }
+        [XmlElement(ElementName = "expectedShipDate")]
+        public string ExpectedShipDate { get; set; }
+
+        public static void shipmentFileGenerate(OrderMessageBatch orderMessageBatch)
         {
+            
+            List<HubOrder> hubOrders = orderMessageBatch.HubOrder;
+            List<ShipmentFileGenerator> ShipmentFileElements = new List<ShipmentFileGenerator>();
+            List<LineItem> lineItems = new List<LineItem>();
 
-            XmlNodeList listLineItemId = xdoc.SelectNodes("//lineItemId");
-            XmlNodeList listOrderDate = xdoc.SelectNodes("//orderDate");
-            XmlNodeList listSendersIdForReceiver = xdoc.SelectNodes("//sendersIdForReceiver");
-            XmlNodeList listCustOrderNumber = xdoc.SelectNodes("//custOrderNumber");
-            XmlNodeList listLineReqDelvDate = xdoc.SelectNodes("//lineReqDelvDate");
-            XmlNodeList listShippingCode = xdoc.SelectNodes("//shippingCode");
-            XmlNodeList listPostalCode = xdoc.SelectNodes("//postalCode");
-            XmlNodeList listMerchantSKU = xdoc.SelectNodes("//merchantSKU");
-            XmlNodeList listVendorSKU = xdoc.SelectNodes("//vendorSKU");
-            XmlNodeList listOrderId = xdoc.SelectNodes("//orderId");
-            List<String> ShipmentElements = new List<String>();
-            List<String> StringShipmentTegs = new List<String>();
-            int counter = 0;
-
-
-
-            while (counter != listOrderId.Count)
+            foreach (HubOrder hubOrder in hubOrders)
             {
-                ShipmentElements.Add(listOrderId.Item(counter).InnerText);
-                ShipmentElements.Add(listOrderDate.Item(counter).InnerText);
-                ShipmentElements.Add(listSendersIdForReceiver.Item(counter).InnerText);
-                ShipmentElements.Add(listCustOrderNumber.Item(counter).InnerText);
-                ShipmentElements.Add(listLineReqDelvDate.Item(counter).InnerText);
-                ShipmentElements.Add(listShippingCode.Item(counter).InnerText);
-                ShipmentElements.Add(listPostalCode.Item(counter).InnerText);
-                ShipmentElements.Add(listMerchantSKU.Item(counter).InnerText);
-                ShipmentElements.Add(listVendorSKU.Item(counter).InnerText);
-                StringShipmentTegs.Add("lineItemId");
-                StringShipmentTegs.Add("orderDate");
-                StringShipmentTegs.Add("sendersIdForReceiver");
-                StringShipmentTegs.Add("custOrderNumber");
-                StringShipmentTegs.Add("lineReqDelvDate");
-                StringShipmentTegs.Add("shippingCode");
-                StringShipmentTegs.Add("postalCode");
-                StringShipmentTegs.Add("merchantSKU");
-                StringShipmentTegs.Add("vendorSKU");
+                ShipmentFileGenerator shipmentFileGenerator = new ShipmentFileGenerator();
+                shipmentFileGenerator.TransactionID = hubOrder.TransactionID;
+                shipmentFileGenerator.SendersIdForReceiver = hubOrder.SendersIdForReceiver;
+                shipmentFileGenerator.CustOrderNumber = hubOrder.CustOrderNumber;
+                shipmentFileGenerator.OrderDate = hubOrder.OrderDate;
+               lineItems = hubOrder.LineItem;
+                foreach(LineItem lineItem in lineItems)
+                {
+                    shipmentFileGenerator.MerchantSKU = lineItem.MerchantSKU;
+                    shipmentFileGenerator.ExpectedShipDate = lineItem.ExpectedShipDate;
+                    shipmentFileGenerator.ShippingCode = lineItem.ShippingCode;
+                }
 
-
-                counter++;
+                ShipmentFileElements.Add(shipmentFileGenerator);
 
             }
-            int counterShipmentString = 0;
-            List<String> data = ShipmentElements;
-            XElement root = new XElement("DESADV",
-                                        from item in data
-                                        select new XElement(StringShipmentTegs[counterShipmentString++], item));
+            var xmlWriterSettings = new XmlWriterSettings() { Indent = true };
+            XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<ShipmentFileGenerator>));
 
-            root.Save(@"../../../Shipment.DESADV");
+            using (XmlWriter xmlWriter = XmlWriter.Create(@"../../../Shipment.DESADV", xmlWriterSettings))
+            {
+                xmlSerializer.Serialize(xmlWriter, ShipmentFileElements);
 
+                Console.WriteLine("File has been generated");
+            }
 
         }
 
 
-
     }
+   
 }
