@@ -1,50 +1,52 @@
-﻿using System;
+using System;
 using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 
-namespace ConsoleApp1
+namespace EdiFileGenenator
 {
-    class UpdateInventories
+    public class UpdateInventories
     {
-        public static void updateInventories(XmlDocument xdoc)
+        [XmlElement(ElementName = "qtyOrdered")]
+        public string QtyOrdered { get; set; }
+        [XmlElement(ElementName = "description")]
+        public string Description { get; set; }
+        [XmlElement(ElementName = "unitCost")]
+        public string UnitCost { get; set; }
+
+        public static void updateInventories(OrderMessageBatch orderMessageBatch)
         {
-
-            XmlNodeList listQtyOdered = xdoc.SelectNodes("//qtyOrdered");
-            XmlNodeList listDescription = xdoc.SelectNodes("//description");
-            XmlNodeList listUnitCost = xdoc.SelectNodes("//unitCost");
-            List<String> UpdateInventoriesElements = new List<String>();
-            List<String> StringUpdateInventoriesTegs = new List<String>();
-            int counter = 0;
-
-            while (counter != listQtyOdered.Count)
+    
+            List<HubOrder> hubOrders = orderMessageBatch.HubOrder;
+            List<UpdateInventories> UpdateInventoriesFileElements = new List<UpdateInventories>();
+            List<LineItem> lineItems = new List<LineItem>();
+            foreach (HubOrder hubOrder in hubOrders)
             {
-                UpdateInventoriesElements.Add(listQtyOdered.Item(counter).InnerText);
-                UpdateInventoriesElements.Add(listDescription.Item(counter).InnerText);
-                UpdateInventoriesElements.Add(listUnitCost.Item(counter).InnerText);
-
-                StringUpdateInventoriesTegs.Add("qtyOrdered");
-                StringUpdateInventoriesTegs.Add("description");
-                StringUpdateInventoriesTegs.Add("unitCost");
               
-
-
-
-                counter++;
+                lineItems = hubOrder.LineItem;
+                foreach(LineItem lineItem in lineItems)
+                {
+                    UpdateInventories updateInventories = new UpdateInventories();
+                    updateInventories.QtyOrdered = lineItem.QtyOrdered;
+                    updateInventories.Description = lineItem.Description;
+                    updateInventories.UnitCost = lineItem.UnitCost;
+                    UpdateInventoriesFileElements.Add(updateInventories);
+                }
+    
             }
-            int counterUpdateInventoriesString = 0;
-            List<String> data = UpdateInventoriesElements;
-            XElement root = new XElement("INVRPT",
-                                        from item in data
-                                        select new XElement(StringUpdateInventoriesTegs[counterUpdateInventoriesString++], item));
 
-            root.Save(@"../../../UpdateInventories.INVRPT");
+            var xmlWriterSettings = new XmlWriterSettings() { Indent = true };
+            XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<UpdateInventories>));
 
+            using (XmlWriter xmlWriter = XmlWriter.Create(@"../../../UpdateInventories.INVRPT", xmlWriterSettings))
+            {
+                xmlSerializer.Serialize(xmlWriter, UpdateInventoriesFileElements);
+
+                Console.WriteLine("File has been generated");
+            }
 
 
         }
     }
 
-
-
-    }
-
+}
